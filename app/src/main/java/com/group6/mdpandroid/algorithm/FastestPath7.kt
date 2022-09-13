@@ -1,0 +1,532 @@
+package com.group6.mdpandroid.algorithm
+
+import android.util.Log
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.math.abs
+
+class FastestPath7(gridDetails: GridDetails, destination: Pair<ArenaCell, ArenaCell?>) {
+
+    private var destination = destination
+    private var gridDetails = gridDetails
+
+    private var comparator: Comparator<ArenaCell> = ArenaCellComparator
+
+    private val frontier: PriorityQueue<ArenaCell> = PriorityQueue<ArenaCell>(3000, comparator)
+    private var costSoFar: HashMap<String, Int> = HashMap()
+
+    private lateinit var currentCell: ArenaCell
+    private var nextNodes: ArrayList<ArenaCell> = ArrayList<ArenaCell>()
+
+    private var previousCells: HashMap<String, String> = HashMap()
+    private lateinit var path: Pair<Stack<ArenaCell>, ArenaCell>
+
+    fun getFastestPath(): Pair<Stack<ArenaCell>, ArenaCell> {
+        Log.v("SR", "Finding Fastest Path. (7th ver)")
+
+        // Get row and col information for destination
+        val targetRow = destination.first.getIndexRow()
+        val targetCol = destination.first.getIndexColumn()
+        val targetOrientation = destination.first.getRobotDirection()
+
+        var targetRow2 = targetRow
+        var targetCol2 = targetCol
+        val targetOrientation2 = destination.first.getRobotDirection()
+
+        //TODO: skip check for this below if possible
+        if (destination.second != null){
+            targetRow2 = destination.second!!.getIndexRow()
+            targetCol2 = destination.second!!.getIndexColumn()
+        }
+
+        var counter = 0
+
+        // Add starting position to frontier
+        currentCell = gridDetails.getArenaCell(gridDetails.getRobotCenterCol(), gridDetails.getRobotCenterRow())
+        currentCell.setActualCostSoFar(0)
+        currentCell.setRobotDirection(gridDetails.getRobotDirection())
+        val startingCellKey = currentCell.getIndexColumn().toString() + "," + currentCell.getIndexRow().toString() + "," +  currentCell.getRobotDirection().toString()
+        costSoFar.put(startingCellKey, 0)
+        previousCells[startingCellKey] = ""
+        //currentCell.setHeuristicCost(calculateHeuristicCost(currentCell))
+        frontier.add(currentCell)
+
+        while (frontier.isNotEmpty()) {
+
+            counter++
+            // Remove ArenaCell with least fn
+            currentCell = frontier.poll()
+
+            var currentCellKey = currentCell.getIndexColumn().toString() + "," + currentCell.getIndexRow().toString() + "," + currentCell.getRobotDirection().toString()
+            Log.v("SR", "expanding: $currentCellKey")
+
+            // If ArenaCell to expand is goal state 1, we are done, retrieve path to this
+            if (currentCell.getIndexRow() == targetRow && currentCell.getIndexColumn() == targetCol && currentCell.getRobotDirection() == targetOrientation){
+                Log.v("SR", "path to destination 1 found!")
+                Log.v("SR", "total cost is "+ currentCell.getActualCostSoFar().toString())
+
+                path = getPath(currentCellKey, currentCell)
+                gridDetails.setRobotDirection(targetOrientation)
+                return path
+            }
+
+            // If ArenaCell to expand is goal state 2, we are done, retrieve path to this
+            if (currentCell.getIndexRow() == targetRow2 && currentCell.getIndexColumn() == targetCol2 && currentCell.getRobotDirection() == targetOrientation2){
+                Log.v("SR", "path to destination 2 found!")
+                Log.v("SR", "total cost is "+ currentCell.getActualCostSoFar().toString())
+
+                path = getPath(currentCellKey, currentCell)
+                gridDetails.setRobotDirection(targetOrientation)
+                return path
+            }
+
+            // Retrieve nodes reachable from this current node
+            nextNodes = getValidNeighbours(currentCell)
+
+            for (nextCell in nextNodes){
+
+                //Log.v("SR", "Checking nextCell in nextNodes ")
+
+                var nextCellKey = nextCell.getIndexColumn().toString() + "," + nextCell.getIndexRow().toString() + "," + nextCell.getRobotDirection().toString()
+                Log.v("SR", nextCellKey)
+
+                // Get actual cost to this neighbour cell through the current cell
+                val newCost: Int = if (costSoFar[currentCellKey] != null){
+                    getMovementCost(currentCell, nextCell) + costSoFar[currentCellKey]!!
+                } else {
+                    getMovementCost(currentCell, nextCell)
+                }
+
+                //Log.v("SR", "Before condition check - cost so far: ${costSoFar[nextCellKey]} and newCost: $newCost")
+
+                if (!costSoFar.containsKey(nextCellKey) || newCost < (costSoFar[nextCellKey]!!)){
+                    Log.v("SR", "Adding node to frontier: x:${nextCell.getIndexColumn()}, y: ${nextCell.getIndexRow()}, direction: ${nextCell.getRobotDirection()}")
+
+                    nextCell.setActualCostSoFar(newCost)
+                    nextCell.setHeuristicCost(calculateHeuristicCost(nextCell))
+                    costSoFar.put(nextCellKey, newCost)
+                    frontier.add(nextCell)
+                    previousCells[nextCellKey] = currentCellKey
+                }
+
+            }
+        }
+
+        Log.v("SR", "cells expanded = $counter")
+        return Pair(Stack(), destination.first)
+    }
+
+    private fun checkIfCanVisit(cell: ArenaCell): Boolean{
+        return !cell.isObstacle() && !cell.isVirtualObstacle() && !cell.isVirtualWall()
+    }
+
+    private fun getValidNeighbours(cell: ArenaCell): ArrayList<ArenaCell> {
+
+        val cellRow = cell.getIndexRow()
+        val cellCol = cell.getIndexColumn()
+        val neighbours = ArrayList<ArenaCell>()
+        val robotDirection = cell.getRobotDirection()
+
+        Log.v("SR", "Finding neighbours for x: ${cellCol}, y: ${cellRow}, direction: $robotDirection")
+
+        if (robotDirection == Direction.NORTH){
+            //turn left
+            if (cellCol - 3 > -1 && cellRow + 2 < 20){
+                val leftForwardCell: ArenaCell = gridDetails.getArenaCell(cellCol - 3, cellRow + 2)
+                val up1: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+1)
+                val up2: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+2)
+                val left1: ArenaCell = gridDetails.getArenaCell(cellCol-1, cellRow+2)
+                val left2: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow+2)
+                if (checkIfCanVisit(leftForwardCell) && checkIfCanVisit(up1) && checkIfCanVisit(up2) && checkIfCanVisit(left1) && checkIfCanVisit(left2) ){
+                    Log.v("SR", "Left Forward x: ${leftForwardCell.getIndexColumn()}, y: ${leftForwardCell.getIndexRow()}, direction: ${leftForwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(leftForwardCell.getIndexColumn(), leftForwardCell.getIndexRow(), Direction.WEST))
+                }
+            }
+            //turn right
+            if (cellCol + 3 < 20 && cellRow + 2 < 20){
+                val rightForwardCell: ArenaCell = gridDetails.getArenaCell(cellCol + 3, cellRow + 2)
+                val up1: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+1)
+                val up2: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+2)
+                val right1: ArenaCell = gridDetails.getArenaCell(cellCol+1, cellRow+2)
+                val right2: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow+2)
+                if (checkIfCanVisit(rightForwardCell) && checkIfCanVisit(up1) && checkIfCanVisit(up2) && checkIfCanVisit(right1) && checkIfCanVisit(right2) ){
+                    Log.v("SR", "Right Forward x: ${rightForwardCell.getIndexColumn()}, y: ${rightForwardCell.getIndexRow()}, direction: ${rightForwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(rightForwardCell.getIndexColumn(), rightForwardCell.getIndexRow(), Direction.EAST))
+                }
+            }
+            //move forward
+            if (cellRow + 1 < 20){
+                val upCell: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow + 1)
+                if (checkIfCanVisit(upCell)){
+                    Log.v("SR", "Up x: ${upCell.getIndexColumn()}, y: ${upCell.getIndexRow()}, direction: ${upCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(upCell.getIndexColumn(), upCell.getIndexRow(), Direction.NORTH))
+                }
+            }
+            //reverse
+            if (cellRow - 1 > -1){
+                val downCell: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow - 1)
+                if (checkIfCanVisit(downCell)){
+                    Log.v("SR", "Down x: ${downCell.getIndexColumn()}, y: ${downCell.getIndexRow()}, direction: ${downCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(downCell.getIndexColumn(), downCell.getIndexRow(), Direction.NORTH))
+                }
+            }
+            //back right
+            if (cellRow - 4 > -1 && cellCol + 2 < 20){
+                val rightBackwardCell: ArenaCell = gridDetails.getArenaCell(cellCol + 2, cellRow - 4)
+                val back1: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-1)
+                val back2: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-2)
+                val back3: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-3)
+                val back4: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-4)
+                val right1: ArenaCell = gridDetails.getArenaCell(cellCol+1, cellRow-4)
+                if (checkIfCanVisit(rightBackwardCell) && checkIfCanVisit(back1) && checkIfCanVisit(back2) && checkIfCanVisit(right1)  && checkIfCanVisit(back3) && checkIfCanVisit(back4) ){
+                    Log.v("SR", "Right Backward x: ${rightBackwardCell.getIndexColumn()}, y: ${rightBackwardCell.getIndexRow()}, direction: ${rightBackwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(rightBackwardCell.getIndexColumn(), rightBackwardCell.getIndexRow(), Direction.WEST))
+                }
+            }
+            //back left
+            if (cellRow - 4 > -1 && cellCol - 2 > -1){
+                val leftBackwardCell: ArenaCell = gridDetails.getArenaCell( cellCol - 2, cellRow - 4)
+                val back1: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-1)
+                val back2: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-2)
+                val back3: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-3)
+                val back4: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-4)
+                val left1: ArenaCell = gridDetails.getArenaCell(cellCol-1, cellRow-4)
+                if (checkIfCanVisit(leftBackwardCell) && checkIfCanVisit(back1) && checkIfCanVisit(back2) && checkIfCanVisit(left1) && checkIfCanVisit(back3) && checkIfCanVisit(back4) ){
+                    Log.v("SR", "Left Backward x: ${leftBackwardCell.getIndexColumn()}, y: ${leftBackwardCell.getIndexRow()}, direction: ${leftBackwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(leftBackwardCell.getIndexColumn(), leftBackwardCell.getIndexRow(), Direction.EAST))
+                }
+            }
+            val sameCell: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow)
+            if (cellRow + 2 < 20 && cellCol + 2 < 20) {
+                val forwardRight1: ArenaCell = gridDetails.getArenaCell(cellCol + 1, cellRow + 1)
+                val forwardRight2: ArenaCell = gridDetails.getArenaCell(cellCol + 2, cellRow + 2)
+                if (checkIfCanVisit(forwardRight1) && checkIfCanVisit(forwardRight2)) {
+                    Log.v("SR", "Rotate right x: ${sameCell.getIndexColumn()}, y: ${sameCell.getIndexRow()}, direction: ${sameCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(sameCell.getIndexColumn(), sameCell.getIndexRow(), Direction.EAST))
+                }
+            }
+            if (cellRow + 2 < 20 && cellCol - 2 > -1){
+                val forwardLeft1: ArenaCell = gridDetails.getArenaCell(cellCol - 1, cellRow + 1)
+                val forwardLeft2: ArenaCell = gridDetails.getArenaCell(cellCol - 2, cellRow + 2)
+                if(checkIfCanVisit(forwardLeft1) && checkIfCanVisit(forwardLeft2)){
+                    Log.v("SR", "Rotate left x: ${sameCell.getIndexColumn()}, y: ${sameCell.getIndexRow()}, direction: ${sameCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(sameCell.getIndexColumn(), sameCell.getIndexRow(), Direction.WEST))
+                }
+            }
+        }
+
+        else if (robotDirection == Direction.SOUTH){
+            if (cellCol + 3 < 20 && cellRow - 2 > -1){
+                val leftForwardCell: ArenaCell = gridDetails.getArenaCell(cellCol + 3, cellRow - 2)
+                val up1: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-1)
+                val up2: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-2)
+                val left1: ArenaCell = gridDetails.getArenaCell(cellCol+1, cellRow-2)
+                val left2: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow-2)
+                if (checkIfCanVisit(leftForwardCell) && checkIfCanVisit(up1) && checkIfCanVisit(up2) && checkIfCanVisit(left1) && checkIfCanVisit(left2) ){
+                    Log.v("SR", "Left Forward x: ${leftForwardCell.getIndexColumn()}, y: ${leftForwardCell.getIndexRow()}, direction: ${leftForwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(leftForwardCell.getIndexColumn(), leftForwardCell.getIndexRow(), Direction.EAST))
+                }
+            }
+            if (cellCol - 3 > -1 && cellRow - 2 > -1){
+                val rightForwardCell: ArenaCell = gridDetails.getArenaCell(cellCol - 3, cellRow - 2)
+                val up1: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-1)
+                val up2: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow-2)
+                val left1: ArenaCell = gridDetails.getArenaCell(cellCol-1, cellRow-2)
+                val left2: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow-2)
+                if (checkIfCanVisit(rightForwardCell) && checkIfCanVisit(up1) && checkIfCanVisit(up2) && checkIfCanVisit(left1) && checkIfCanVisit(left2) ){
+                    Log.v("SR", "Right Forward x: ${rightForwardCell.getIndexColumn()}, y: ${rightForwardCell.getIndexRow()}, direction: ${rightForwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(rightForwardCell.getIndexColumn(), rightForwardCell.getIndexRow(), Direction.WEST))
+                }
+            }
+            if (cellRow - 1 > -1){
+                val upCell: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow - 1)
+                if (checkIfCanVisit(upCell)){
+                    Log.v("SR", "Up x: ${upCell.getIndexColumn()}, y: ${upCell.getIndexRow()}, direction: ${upCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(upCell.getIndexColumn(), upCell.getIndexRow(), Direction.SOUTH))
+                }
+            }
+            if (cellRow + 1 < 20){
+                val downCell: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow + 1)
+                if (checkIfCanVisit(downCell)){
+                    Log.v("SR", "Down x: ${downCell.getIndexColumn()}, y: ${downCell.getIndexRow()}, direction: ${downCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(downCell.getIndexColumn(), downCell.getIndexRow(), Direction.SOUTH))
+                }
+            }
+            if (cellRow + 4 < 20 && cellCol - 2 > -1){
+                val rightBackwardCell: ArenaCell = gridDetails.getArenaCell(cellCol - 2, cellRow + 4)
+                val back1: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+1)
+                val back2: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+2)
+                val back3: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+3)
+                val back4: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+4)
+                val right1: ArenaCell = gridDetails.getArenaCell(cellCol-1, cellRow+4)
+                if (checkIfCanVisit(rightBackwardCell) && checkIfCanVisit(back1) && checkIfCanVisit(back2) && checkIfCanVisit(right1) && checkIfCanVisit(back3) && checkIfCanVisit(back4) ){
+                    Log.v("SR", "Right Backward x: ${rightBackwardCell.getIndexColumn()}, y: ${rightBackwardCell.getIndexRow()}, direction: ${rightBackwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(rightBackwardCell.getIndexColumn(), rightBackwardCell.getIndexRow(), Direction.EAST))
+                }
+            }
+            if (cellRow + 4 < 20 && cellCol + 2 < 20){
+                val leftBackwardCell: ArenaCell = gridDetails.getArenaCell(cellCol + 2, cellRow + 4)
+                val back1: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+1)
+                val back2: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+2)
+                val back3: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+3)
+                val back4: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow+4)
+                val right1: ArenaCell = gridDetails.getArenaCell(cellCol+1, cellRow+4)
+                if (checkIfCanVisit(leftBackwardCell) && checkIfCanVisit(back1) && checkIfCanVisit(back2) && checkIfCanVisit(right1) && checkIfCanVisit(back3) && checkIfCanVisit(back4) ){
+                    Log.v("SR", "Left Backward x: ${leftBackwardCell.getIndexColumn()}, y: ${leftBackwardCell.getIndexRow()}, direction: ${leftBackwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(leftBackwardCell.getIndexColumn(), leftBackwardCell.getIndexRow(), Direction.WEST))
+                }
+            }
+            val sameCell: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow)
+            if (cellRow - 2 > -1 && cellCol -2 > -1){
+                val forwardRight1: ArenaCell = gridDetails.getArenaCell(cellCol - 1, cellRow - 1)
+                val forwardRight2: ArenaCell = gridDetails.getArenaCell(cellCol - 2, cellRow - 2)
+                if(checkIfCanVisit(forwardRight1) && checkIfCanVisit(forwardRight2)){
+                    Log.v("SR", "Rotate right x: ${sameCell.getIndexColumn()}, y: ${sameCell.getIndexRow()}, direction: ${sameCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(sameCell.getIndexColumn(), sameCell.getIndexRow(), Direction.WEST))
+                }
+            }
+            if (cellRow -2 > -1 && cellCol + 2 < 20){
+                val forwardLeft1: ArenaCell = gridDetails.getArenaCell(cellCol + 1, cellRow - 1)
+                val forwardLeft2: ArenaCell = gridDetails.getArenaCell(cellCol + 2, cellRow - 2)
+                if(checkIfCanVisit(forwardLeft1) && checkIfCanVisit(forwardLeft2)) {
+                    Log.v("SR", "Rotate left x: ${sameCell.getIndexColumn()}, y: ${sameCell.getIndexRow()}, direction: ${sameCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(sameCell.getIndexColumn(), sameCell.getIndexRow(), Direction.EAST))
+                }
+            }
+        }
+
+        else if (robotDirection == Direction.WEST){
+            if (cellCol - 2 > -1 && cellRow - 3 > -1){
+                val leftForwardCell: ArenaCell = gridDetails.getArenaCell(cellCol - 2, cellRow - 3)
+                val up1: ArenaCell = gridDetails.getArenaCell(cellCol-1, cellRow)
+                val up2: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow)
+                val left1: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow-1)
+                val left2: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow-2)
+                if (checkIfCanVisit(leftForwardCell) && checkIfCanVisit(up1) && checkIfCanVisit(up2) && checkIfCanVisit(left1) && checkIfCanVisit(left2) ){
+                    Log.v("SR", "Left Forward x: ${leftForwardCell.getIndexColumn()}, y: ${leftForwardCell.getIndexRow()}, direction: ${leftForwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(leftForwardCell.getIndexColumn(), leftForwardCell.getIndexRow(), Direction.SOUTH))
+                }
+            }
+            if (cellCol - 2 > -1 && cellRow + 3 < 20){
+                val rightForwardCell: ArenaCell = gridDetails.getArenaCell(cellCol - 2, cellRow + 3)
+                val up1: ArenaCell = gridDetails.getArenaCell(cellCol-1, cellRow)
+                val up2: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow)
+                val left1: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow+1)
+                val left2: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow+2)
+                if (checkIfCanVisit(rightForwardCell) && checkIfCanVisit(up1) && checkIfCanVisit(up2) && checkIfCanVisit(left1) && checkIfCanVisit(left2) ){
+                    Log.v("SR", "Right Forward x: ${rightForwardCell.getIndexColumn()}, y: ${rightForwardCell.getIndexRow()}, direction: ${rightForwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(rightForwardCell.getIndexColumn(), rightForwardCell.getIndexRow(), Direction.NORTH))
+                }
+            }
+            if (cellCol - 1 > -1){
+                val upCell: ArenaCell = gridDetails.getArenaCell(cellCol - 1, cellRow)
+                if (checkIfCanVisit(upCell)){
+                    Log.v("SR", "Up x: ${upCell.getIndexColumn()}, y: ${upCell.getIndexRow()}, direction: ${upCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(upCell.getIndexColumn(), upCell.getIndexRow(), Direction.WEST))
+                }
+            }
+            if (cellCol + 1 < 20){
+                val downCell: ArenaCell = gridDetails.getArenaCell(cellCol + 1, cellRow)
+                if (checkIfCanVisit(downCell)){
+                    Log.v("SR", "Down x: ${downCell.getIndexColumn()}, y: ${downCell.getIndexRow()}, direction: ${downCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(downCell.getIndexColumn(), downCell.getIndexRow(), Direction.WEST))
+                }
+            }
+            if (cellRow + 2 < 20 && cellCol + 4 < 20){
+                val rightBackwardCell: ArenaCell = gridDetails.getArenaCell(cellCol + 4, cellRow + 2)
+                val back1: ArenaCell = gridDetails.getArenaCell(cellCol+1, cellRow)
+                val back2: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow)
+                val back3: ArenaCell = gridDetails.getArenaCell(cellCol+3, cellRow)
+                val back4: ArenaCell = gridDetails.getArenaCell(cellCol+4, cellRow)
+                val right1: ArenaCell = gridDetails.getArenaCell(cellCol+4, cellRow+1)
+                if (checkIfCanVisit(rightBackwardCell) && checkIfCanVisit(back1) && checkIfCanVisit(back2) && checkIfCanVisit(right1) && checkIfCanVisit(back3) && checkIfCanVisit(back4) ){
+                    Log.v("SR", "Right Backward x: ${rightBackwardCell.getIndexColumn()}, y: ${rightBackwardCell.getIndexRow()}, direction: ${rightBackwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(rightBackwardCell.getIndexColumn(), rightBackwardCell.getIndexRow(), Direction.SOUTH))
+                }
+            }
+            if (cellRow - 2 > -1 && cellCol + 4 < 20){
+                val leftBackwardCell: ArenaCell = gridDetails.getArenaCell(cellCol + 4, cellRow - 2)
+                val back1: ArenaCell = gridDetails.getArenaCell(cellCol+1, cellRow)
+                val back2: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow)
+                val back3: ArenaCell = gridDetails.getArenaCell(cellCol+3, cellRow)
+                val back4: ArenaCell = gridDetails.getArenaCell(cellCol+4, cellRow)
+                val right1: ArenaCell = gridDetails.getArenaCell(cellCol+4, cellRow-1)
+                if (checkIfCanVisit(leftBackwardCell) && checkIfCanVisit(back1) && checkIfCanVisit(back2) && checkIfCanVisit(right1) && checkIfCanVisit(back3) && checkIfCanVisit(back4) ){
+                    Log.v("SR", "Left Backward x: ${leftBackwardCell.getIndexColumn()}, y: ${leftBackwardCell.getIndexRow()}, direction: ${leftBackwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(leftBackwardCell.getIndexColumn(), leftBackwardCell.getIndexRow(), Direction.NORTH))
+                }
+            }
+            val sameCell: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow)
+            if (cellRow + 2 < 20 && cellCol - 2 > -1) {
+                val forwardRight1: ArenaCell = gridDetails.getArenaCell(cellCol - 1, cellRow + 1)
+                val forwardRight2: ArenaCell = gridDetails.getArenaCell(cellCol - 2, cellRow + 2)
+                if (checkIfCanVisit(forwardRight1) && checkIfCanVisit(forwardRight2)) {
+                    Log.v("SR", "Rotate right x: ${sameCell.getIndexColumn()}, y: ${sameCell.getIndexRow()}, direction: ${sameCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(sameCell.getIndexColumn(), sameCell.getIndexRow(), Direction.NORTH))
+                }
+            }
+            if (cellRow - 2 > -1 && cellCol - 2 > -1) {
+                val forwardLeft1: ArenaCell = gridDetails.getArenaCell(cellCol - 1, cellRow - 1)
+                val forwardLeft2: ArenaCell = gridDetails.getArenaCell(cellCol - 2, cellRow - 2)
+                if (checkIfCanVisit(forwardLeft1) && checkIfCanVisit(forwardLeft2)) {
+                    Log.v("SR", "Rotate left x: ${sameCell.getIndexColumn()}, y: ${sameCell.getIndexRow()}, direction: ${sameCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(sameCell.getIndexColumn(), sameCell.getIndexRow(), Direction.SOUTH))
+                }
+            }
+        }
+
+        else if (robotDirection == Direction.EAST){
+            if (cellCol + 2 < 20 && cellRow + 3 < 20){
+                val leftForwardCell: ArenaCell = gridDetails.getArenaCell(cellCol + 2, cellRow + 3)
+                val up1: ArenaCell = gridDetails.getArenaCell(cellCol+1, cellRow)
+                val up2: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow)
+                val left1: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow+1)
+                val left2: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow+2)
+                if (checkIfCanVisit(leftForwardCell) && checkIfCanVisit(up1) && checkIfCanVisit(up2) && checkIfCanVisit(left1) && checkIfCanVisit(left2) ){
+                    Log.v("SR", "Left Forward x: ${leftForwardCell.getIndexColumn()}, y: ${leftForwardCell.getIndexRow()}, direction: ${leftForwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(leftForwardCell.getIndexColumn(), leftForwardCell.getIndexRow(), Direction.NORTH))
+                }
+            }
+            if (cellCol + 2 < 20 && cellRow - 3 > -1){
+                val rightForwardCell: ArenaCell = gridDetails.getArenaCell(cellCol + 2, cellRow - 3)
+                val up1: ArenaCell = gridDetails.getArenaCell(cellCol+1, cellRow)
+                val up2: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow)
+                val left1: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow-1)
+                val left2: ArenaCell = gridDetails.getArenaCell(cellCol+2, cellRow-2)
+                if (checkIfCanVisit(rightForwardCell) && checkIfCanVisit(up1) && checkIfCanVisit(up2) && checkIfCanVisit(left1) && checkIfCanVisit(left2) ){
+                    Log.v("SR", "Right Forward x: ${rightForwardCell.getIndexColumn()}, y: ${rightForwardCell.getIndexRow()}, direction: ${rightForwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(rightForwardCell.getIndexColumn(), rightForwardCell.getIndexRow(), Direction.SOUTH))
+                }
+            }
+            if (cellCol + 1 < 20){
+                val upCell: ArenaCell = gridDetails.getArenaCell(cellCol + 1, cellRow)
+                if (checkIfCanVisit(upCell)){
+                    Log.v("SR", "Up x: ${upCell.getIndexColumn()}, y: ${upCell.getIndexRow()}, direction: ${upCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(upCell.getIndexColumn(), upCell.getIndexRow(), Direction.EAST))
+                }
+            }
+            if (cellCol - 1 > -1){
+                val downCell: ArenaCell = gridDetails.getArenaCell(cellCol - 1, cellRow)
+                if (checkIfCanVisit(downCell)){
+                    Log.v("SR", "Down x: ${downCell.getIndexColumn()}, y: ${downCell.getIndexRow()}, direction: ${downCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(downCell.getIndexColumn(), downCell.getIndexRow(), Direction.EAST))
+                }
+            }
+            if (cellRow - 2 > -1 && cellCol - 4 > -1){
+                val rightBackwardCell: ArenaCell = gridDetails.getArenaCell(cellCol - 4, cellRow - 2)
+                val back1: ArenaCell = gridDetails.getArenaCell(cellCol-1, cellRow)
+                val back2: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow)
+                val back3: ArenaCell = gridDetails.getArenaCell(cellCol-3, cellRow)
+                val back4: ArenaCell = gridDetails.getArenaCell(cellCol-4, cellRow)
+                val right1: ArenaCell = gridDetails.getArenaCell(cellCol-4, cellRow-1)
+                if (checkIfCanVisit(rightBackwardCell) && checkIfCanVisit(back1) && checkIfCanVisit(back2) && checkIfCanVisit(right1) && checkIfCanVisit(back3) && checkIfCanVisit(back4) ){
+                    Log.v("SR", "Right Backward x: ${rightBackwardCell.getIndexColumn()}, y: ${rightBackwardCell.getIndexRow()}, direction: ${rightBackwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(rightBackwardCell.getIndexColumn(), rightBackwardCell.getIndexRow(), Direction.NORTH))
+                }
+            }
+            if (cellRow + 2 < 20 && cellCol - 4 > -1){
+                val leftBackwardCell: ArenaCell = gridDetails.getArenaCell(cellCol - 4, cellRow + 2)
+                val back1: ArenaCell = gridDetails.getArenaCell(cellCol-1, cellRow)
+                val back2: ArenaCell = gridDetails.getArenaCell(cellCol-2, cellRow)
+                val back3: ArenaCell = gridDetails.getArenaCell(cellCol-3, cellRow)
+                val back4: ArenaCell = gridDetails.getArenaCell(cellCol-4, cellRow)
+                val right1: ArenaCell = gridDetails.getArenaCell(cellCol-4, cellRow+1)
+                if (checkIfCanVisit(leftBackwardCell) && checkIfCanVisit(back1) && checkIfCanVisit(back2) && checkIfCanVisit(right1) && checkIfCanVisit(back3) && checkIfCanVisit(back4) ){
+                    Log.v("SR", "Left Backward x: ${leftBackwardCell.getIndexColumn()}, y: ${leftBackwardCell.getIndexRow()}, direction: ${leftBackwardCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(leftBackwardCell.getIndexColumn(), leftBackwardCell.getIndexRow(), Direction.SOUTH))
+                }
+            }
+            val sameCell: ArenaCell = gridDetails.getArenaCell(cellCol, cellRow)
+            if (cellRow - 2 > -1 && cellCol + 2 < 20) {
+                val forwardRight1: ArenaCell = gridDetails.getArenaCell(cellCol + 1, cellRow - 1)
+                val forwardRight2: ArenaCell = gridDetails.getArenaCell(cellCol + 2, cellRow - 2)
+                if (checkIfCanVisit(forwardRight1) && checkIfCanVisit(forwardRight2)) {
+                    Log.v("SR", "Rotate right x: ${sameCell.getIndexColumn()}, y: ${sameCell.getIndexRow()}, direction: ${sameCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(sameCell.getIndexColumn(), sameCell.getIndexRow(), Direction.SOUTH))
+                }
+            }
+            if (cellRow + 2 < 20 && cellCol + 2 < 20) {
+                val forwardLeft1: ArenaCell = gridDetails.getArenaCell(cellCol + 1, cellRow + 1)
+                val forwardLeft2: ArenaCell = gridDetails.getArenaCell(cellCol + 2, cellRow + 2)
+                if (checkIfCanVisit(forwardLeft1) && checkIfCanVisit(forwardLeft2)) {
+                    Log.v("SR", "Rotate left x: ${sameCell.getIndexColumn()}, y: ${sameCell.getIndexRow()}, direction: ${sameCell.getRobotDirection()}")
+                    neighbours.add(ArenaCell(sameCell.getIndexColumn(), sameCell.getIndexRow(), Direction.NORTH))
+                }
+            }
+        }
+
+        Log.v("SR", "---")
+        return neighbours
+    }
+
+    private fun getMovementCost(currentCell: ArenaCell, newCell: ArenaCell): Int{
+
+        val currentDirection = currentCell.getRobotDirection()
+        val newDirection = newCell.getRobotDirection()
+        val currentCol = currentCell.getIndexColumn()
+        val currentRow = currentCell.getIndexRow()
+        val newCol = newCell.getIndexColumn()
+        val newRow = newCell.getIndexRow()
+
+        if (currentCol == newCol && currentRow == newRow){
+            return 9
+        }
+
+        if (currentDirection == Direction.NORTH){
+            if (newDirection == Direction.WEST || newDirection == Direction.EAST){
+                return 5
+            }
+        }
+        else if (currentDirection == Direction.WEST){
+            if (newDirection == Direction.SOUTH || newDirection == Direction.NORTH){
+                return 5
+            }
+        }
+        else if (currentDirection == Direction.EAST){
+            if (newDirection == Direction.SOUTH || newDirection == Direction.NORTH){
+                return 5
+            }
+        }
+        else if (currentDirection == Direction.SOUTH){
+            if (newDirection == Direction.WEST || newDirection == Direction.EAST){
+                return 5
+            }
+        }
+        return 1
+    }
+
+    private fun calculateHeuristicCost(currentCell: ArenaCell): Int{
+        return abs(currentCell.getIndexRow() - destination.first.getIndexRow()) +
+                abs(currentCell.getIndexColumn() - destination.first.getIndexColumn())
+    }
+
+    // Returns a stack of ArenaCells from the start to the end as a path
+    private fun getPath(currentCellKey: String, destination: ArenaCell): Pair<Stack<ArenaCell>, ArenaCell> {
+
+        val path = Stack<ArenaCell>()
+        var pathNode : String = currentCellKey
+
+        while (true){
+            path.push(keyToCell(pathNode))
+            pathNode = previousCells[pathNode].toString()
+            Log.v("path", "next path is$pathNode")
+            if (pathNode == ""){
+                break
+            }
+        }
+
+        return Pair(path, destination)
+    }
+
+    private fun keyToCell(key: String): ArenaCell {
+
+        Log.v("tag", key)
+
+        val stringSplit: List<String> = key.split(",")
+        val cellColumn = Integer.parseInt(stringSplit[0])
+        val cellRow = Integer.parseInt(stringSplit[1])
+        val robotDirection = enumValueOf<Direction>(stringSplit[2])
+
+        return ArenaCell(cellColumn, cellRow, robotDirection)
+    }
+}

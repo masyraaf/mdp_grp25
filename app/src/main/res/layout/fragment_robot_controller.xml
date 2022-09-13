@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintStart_toStartOf="parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
+
+    <ImageButton
+        android:id="@+id/button_forward_right"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:rotation="0"
+        android:src="@android:drawable/ic_menu_directions"
+        app:layout_constraintStart_toEndOf="@+id/button_up"
+        app:layout_constraintTop_toTopOf="@+id/button_up" />
+
+    <ImageButton
+        android:id="@+id/button_on_the_spot_right"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:rotation="90"
+        android:src="@drawable/ic_baseline_arrow_upward_24"
+        app:layout_constraintStart_toEndOf="@+id/button_stop"
+        app:layout_constraintTop_toTopOf="@+id/button_stop" />
+
+    <ImageButton
+        android:id="@+id/button_back_right"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:rotation="-180"
+        android:src="@android:drawable/ic_menu_directions"
+        app:layout_constraintStart_toEndOf="@+id/button_down"
+        app:layout_constraintTop_toBottomOf="@+id/button_on_the_spot_right"
+        android:scaleX="-1" />
+
+    <ImageButton
+        android:id="@+id/button_stop"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@android:drawable/checkbox_off_background"
+        app:layout_constraintStart_toEndOf="@+id/button_forward_left"
+        app:layout_constraintTop_toBottomOf="@+id/button_up" />
+
+    <ImageButton
+        android:id="@+id/button_up"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/ic_baseline_arrow_upward_24"
+        app:layout_constraintEnd_toStartOf="@id/button_forward_right"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@id/button_forward_left"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/button_forward_left"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:rotation="0"
+        android:scaleX="-1"
+        android:src="@android:drawable/ic_menu_directions"
+        app:layout_constraintEnd_toStartOf="@id/button_up"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/button_up" />
+
+    <ImageButton
+        android:id="@+id/button_on_the_spot_left"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:rotation="-90"
+        android:src="@drawable/ic_baseline_arrow_upward_24"
+        app:layout_constraintBottom_toTopOf="@+id/button_back_left"
+        app:layout_constraintEnd_toStartOf="@id/button_stop"
+        app:layout_constraintTop_toBottomOf="@id/button_forward_left"
+        app:layout_constraintVertical_bias="0" />
+
+    <ImageButton
+        android:id="@+id/button_back_left"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:rotation="-180"
+        android:src="@android:drawable/ic_menu_directions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_on_the_spot_left" />
+
+    <ImageButton
+        android:id="@+id/button_down"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:rotation="180"
+        android:src="@drawable/ic_baseline_arrow_upward_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_back_left"
+        app:layout_constraintTop_toBottomOf="@+id/button_stop"
+        app:layout_constraintVertical_bias="0" />
+
+    <Button
+        android:id="@+id/run_task"
+        android:layout_width="191dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/start_task"
+        app:layout_constraintStart_toEndOf="@id/button_forward_right"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/map_config1"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:text="F1"
+        app:layout_constraintEnd_toStartOf="@+id/map_config2"
+        app:layout_constraintStart_toEndOf="@id/run_task"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/map_config2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:text="F2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/list_of_obstacles_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:text="@string/list_of_obstacles"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.459"
+        app:layout_constraintStart_toEndOf="@id/button_forward_right"
+        app:layout_constraintTop_toBottomOf="@id/run_task" />
+
+    <HorizontalScrollView
+        app:layout_constraintTop_toBottomOf="@id/list_of_obstacles_label"
+        app:layout_constraintStart_toEndOf="@id/button_on_the_spot_right"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp">
+
+        <LinearLayout
+            android:id="@+id/current_obstacles_info"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/list_of_obstacles_label"
+            app:layout_constraintEnd_toEndOf="parent">
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

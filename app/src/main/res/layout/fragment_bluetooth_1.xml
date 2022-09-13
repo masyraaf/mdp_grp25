@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/frameLayout3"
+    tools:context=".fragments.Bluetooth"
+    android:orientation="vertical"
+    android:layout_margin="40dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:showDividers="middle"
+        android:divider="@drawable/empty_tall_divider"
+
+        >
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/on_off_btn"
+            android:text="OFF"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:id="@+id/refresh_btn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="REFRESH"
+
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/discoverable_btn"
+        android:text="MAKE DISCOVERABLE"
+        />
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/message_log"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="@string/text_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/text_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/send_btn"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@android:drawable/ic_menu_send"
+
+            />
+
+
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_marginTop="20dp"
+        android:id="@+id/list_of_devices_label"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:text="List of Paired Devices"
+        android:textSize="20sp" />
+
+    <ScrollView
+        android:id="@+id/devicesView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/bg_custom"
+        >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/devicesList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
+    <TextView
+        android:layout_marginTop="20dp"
+        android:id="@+id/list_of_unpaired_devices_label"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:text="List of Unpaired Devices"
+        android:textSize="20sp" />
+
+    <ScrollView
+        android:id="@+id/unpairedDevicesView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/bg_custom"
+        >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/unpairedDevicesList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
+
+
+</LinearLayout>
+
+
+
+<!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:id="@+id/frameLayout3"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    tools:context=".fragments.Bluetooth" >-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/on_off_btn"-->
+<!--        android:layout_width="65dp"-->
+<!--        android:layout_height="65dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:src="@android:drawable/ic_lock_power_off"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/refresh_btn"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--    <Button-->
+<!--        android:id="@+id/discoverable_btn"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        android:text="@string/make_discoverable"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/devicesView"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/on_off_btn" />-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/refresh_btn"-->
+<!--        android:layout_width="65dp"-->
+<!--        android:layout_height="65dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_marginEnd="55dp"-->
+<!--        android:src="@android:drawable/ic_popup_sync"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/devicesView"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/send_btn"-->
+<!--        android:layout_width="60dp"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        android:layout_marginEnd="10dp"-->
+<!--        android:src="@android:drawable/ic_menu_send"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/devicesView"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/discoverable_btn" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/list_of_devices_label"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/list_of_devices"-->
+<!--        android:layout_marginBottom="8dp"-->
+<!--        android:textSize="20sp"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/devicesView"-->
+<!--        app:layout_constraintEnd_toEndOf="@+id/devicesView"-->
+<!--        app:layout_constraintHorizontal_bias="0.459"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/devicesView" />-->
+
+<!--    <ScrollView-->
+<!--        android:id="@+id/devicesView"-->
+<!--        android:layout_width="270dp"-->
+<!--        android:layout_height="157dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:layout_marginBottom="16dp"-->
+<!--        android:background="@drawable/bg_custom"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent">-->
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/devicesList"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
+<!--    </ScrollView>-->
+
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:id="@+id/message_log"-->
+<!--        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"-->
+<!--        android:layout_width="230dp"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_marginStart="10dp"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        android:hint="@string/text_hint"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/send_btn"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/discoverable_btn">-->
+
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/text_input"-->
+<!--            android:layout_width="230dp"-->
+<!--            android:layout_height="45dp" />-->
+
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
+
+<!--</androidx.constraintlayout.widget.ConstraintLayout>-->

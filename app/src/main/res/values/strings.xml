@@ -1,0 +1,65 @@
+<resources>
+    <string name="app_name">MDP Group 6</string>
+
+    <!-- Temp placeholder text -->
+    <string name="for_grid_map">Grid Map goes here</string>
+    <string name="for_status_display">Status Display goes here</string>
+    <string name="for_image_display">Image Display goes here</string>
+    <string name="for_robot_controller">Robot Controller goes here</string>
+    <string name="for_task_controller">Task Controller goes here</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Strings for ArenaDragControls fragment -->
+    <string name="type_obstacle">O</string>
+    <string name="type_robot">R</string>
+    <string name="reset_button">Reset</string>
+
+    <!-- Strings for StatusAdditionalInfo fragment -->
+    <string name="current_grid">Current Grid:</string>
+    <string name="obstacles_count">Obstacles Count:</string>
+
+    <!-- Strings for StatusDisplay fragment -->
+    <string name="image_id">Image ID is:</string>
+    <string name="robot_position">Position:</string>
+    <string name="robot_direction">Direction:</string>
+    <string name="time_taken">Time:</string>
+    <string name="robot_status">Robot Status:</string>
+    <string name="text_log">Status Log:</string>
+    <string name="text_hint">Send message…</string>
+    <string name="robot_direction_north">NORTH</string>
+    <string name="robot_direction_east">EAST</string>
+    <string name="robot_direction_south">SOUTH</string>
+    <string name="robot_direction_west">WEST</string>
+
+    <!-- Strings for RobotController fragment -->
+    <string name="start_task">Start Task</string>
+    <string name="list_of_obstacles"><u><b>List of Obstacles</b></u></string>
+    <string name="list_of_devices"><u><b>List of Devices</b></u></string>
+
+    <string-array name="task_options_strings">
+        <item>Image Recognition</item>
+        <item>Navigate Obstacle</item>
+        <item>Hamiltonian Path Simulation</item>
+
+    </string-array>
+
+    <!-- Strings for Bluetooth fragment -->
+    <string name="turn_on_off">Turn On/Off</string>
+    <string name="refresh_list">Refresh List</string>
+    <string name="make_discoverable">Make Discoverable</string>
+
+    <!-- Array of device names for Bluetooth fragment (temporary, only for testing) -->
+    <string-array name="sample_device_array">
+        <item>Device 1</item>
+        <item>Device 2</item>
+        <item>Device 3</item>
+        <item>Device 4</item>
+        <item>Device 5</item>
+        <item>Device 6</item>
+        <item>Device 7</item>
+        <item>Device 8</item>
+        <item>Device 9</item>
+        <item>Device 10</item>
+    </string-array>
+
+</resources>
