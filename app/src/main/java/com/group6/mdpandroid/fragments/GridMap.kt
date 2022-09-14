@@ -33,6 +33,7 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
     private var mapDetails: MutableMap<Int, Char> = mutableMapOf()
     private var robotPosition = arrayOf(0, 0)
     private var obstacleCount = 0
+    var usedCells = listOf(0)
 
     /**
      * Member object for the bluetooth service
@@ -587,13 +588,16 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
         when (direction) {
             getString(R.string.robot_direction_north) -> {
                 // up
+                //main path checked
                 when (directionType) {
                     1 -> {
                         newView = activity?.findViewById(robotViewID + 21)!!
                         highlightPath(arrayOf(robotViewID - 22, robotViewID - 21, robotViewID - 20))
+                        highlightMainPath(arrayOf(robotViewID+42, robotViewID, robotViewID+21))
                     }
 
                     // forward left
+                    // main path checked
                     2 -> {
                         newView = activity?.findViewById(robotViewID + 38)!!
                         newRobotCenter = activity?.findViewById(robotViewID + 39)!!
@@ -605,9 +609,11 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID + 42, robotViewID + 43, robotViewID + 62,
                             robotViewID + 63, robotViewID + 64
                         ))
+                        highlightMainPath(arrayOf(robotViewID-21,robotViewID +21, robotViewID+42, robotViewID+41, robotViewID+40, robotViewID+39, robotViewID))
                     }
 
                     // forward right
+                    // main path checked
                     3 -> {
                         newView = activity?.findViewById(robotViewID + 46)!!
                         newRobotCenter = activity?.findViewById(robotViewID + 45)!!
@@ -619,15 +625,19 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID + 42, robotViewID + 43, robotViewID + 62,
                             robotViewID + 63, robotViewID + 64
                         ))
+                        highlightMainPath(arrayOf(robotViewID-21, robotViewID +21, robotViewID+42, robotViewID+43,robotViewID+44, robotViewID+45, robotViewID))
                     }
 
                     //down
+                    // main path checked
                     4 -> {
                         newView = activity?.findViewById(robotViewID - 21)!!
                         highlightPath(arrayOf(robotViewID + 20, robotViewID + 21, robotViewID + 22))
+                        highlightMainPath(arrayOf(robotViewID, robotViewID-21))
                     }
 
                     // down left
+                    // main path checked
                     5 -> {
                         newRobotCenter = activity?.findViewById(robotViewID - 86)!!
                         newView = activity?.findViewById(robotViewID - 85)!!
@@ -640,9 +650,11 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 105, robotViewID - 43, robotViewID - 22,
                             robotViewID - 1, robotViewID + 20
                         ))
+                        highlightMainPath(arrayOf(robotViewID -21, robotViewID-42, robotViewID-63, robotViewID-84, robotViewID-85, robotViewID-86,robotViewID))
                     }
 
                     // down right
+                    // main path checked
                     6 -> {
                         newRobotCenter = activity?.findViewById(robotViewID - 82)!!
                         newView = activity?.findViewById(robotViewID - 83)!!
@@ -655,26 +667,34 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 106, robotViewID - 41, robotViewID - 20,
                             robotViewID + 1, robotViewID + 22
                         ))
+                        highlightMainPath(arrayOf(robotViewID -21, robotViewID-42, robotViewID-63, robotViewID-84,robotViewID-83, robotViewID-82, robotViewID))
                     }
 
                     //on the spot left
+                    // main path checked
                     7 -> {
                         newView = activity?.findViewById(robotViewID - 1)!!
+                        highlightMainPath(arrayOf(robotViewID))
                     }
 
                     //on the spot right
+                    // main path checked
                     8 -> {
                         newView = activity?.findViewById(robotViewID + 1)!!
+                        highlightMainPath(arrayOf(robotViewID))
                     }
                 }
             }
             getString(R.string.robot_direction_east) -> {
                 // up
+                // main path checked
                 if (directionType == 1) {
                     newView = activity?.findViewById(robotViewID + 1)!!
                     highlightPath(arrayOf(robotViewID + 20, robotViewID - 1, robotViewID - 22))
+                    highlightMainPath(arrayOf(robotViewID + 1, robotViewID))
                 }
                 // forward left
+                //main path checked
                 when (directionType) {
                     2 -> {
                         newRobotCenter = activity?.findViewById(robotViewID + 65)!!
@@ -687,9 +707,11 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID + 2, robotViewID + 23, robotViewID - 18,
                             robotViewID + 3, robotViewID + 24
                         ))
+                        highlightMainPath(arrayOf(robotViewID, robotViewID+1,robotViewID+2, robotViewID+23, robotViewID+44, robotViewID+65, robotViewID+86))
                     }
 
                     // forward right
+                    //main path checked
                     3 -> {
                         newRobotCenter = activity?.findViewById(robotViewID - 61)!!
                         newView = activity?.findViewById(robotViewID - 82)!!
@@ -701,15 +723,19 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID + 2, robotViewID + 23, robotViewID - 18,
                             robotViewID + 3, robotViewID + 24
                         ))
+                        highlightMainPath(arrayOf(robotViewID, robotViewID+1,robotViewID+2, robotViewID-19, robotViewID-40, robotViewID-61, robotViewID-82))
                     }
 
                     // down
+                    // main path checked
                     4 -> {
                         newView = activity?.findViewById(robotViewID - 1)!!
                         highlightPath(arrayOf(robotViewID + 22, robotViewID + 1, robotViewID - 20))
+                        highlightMainPath(arrayOf(robotViewID -1, robotViewID))
                     }
 
                     // down left
+                    // main path checked
                     5 -> {
                         newRobotCenter = activity?.findViewById(robotViewID + 38)!!
                         newView = activity?.findViewById(robotViewID + 17)!!
@@ -722,9 +748,11 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID + 20, robotViewID + 21, robotViewID + 1,
                             robotViewID + 22, robotViewID - 20
                         ))
+                        highlightMainPath(arrayOf(robotViewID, robotViewID-1,robotViewID-2, robotViewID-3, robotViewID-4,robotViewID+17,robotViewID+38))
                     }
 
                     // down right
+                    // main path checked
                     6 -> {
                         newRobotCenter = activity?.findViewById(robotViewID - 46)!!
                         newView = activity?.findViewById(robotViewID - 25)!!
@@ -737,28 +765,36 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID + 22, robotViewID - 20, robotViewID - 21,
                             robotViewID - 22, robotViewID - 23
                         ))
+                        highlightMainPath(arrayOf(robotViewID, robotViewID-1,robotViewID-2, robotViewID-3, robotViewID-4,robotViewID-25,robotViewID-46))
                     }
 
                     //on the spot left
+                    // main path checked
                     7 -> {
                         newView = activity?.findViewById(robotViewID + 21)!!
+                        highlightPath(arrayOf(robotViewID))
                     }
 
                     //on the spot right
+                    //main path checked
                     8 -> {
                         newView = activity?.findViewById(robotViewID - 21)!!
+                        highlightPath(arrayOf(robotViewID))
                     }
                 }
             }
             getString(R.string.robot_direction_south) -> {
                 // up
+                // main path checked
                 when (directionType) {
                     1 -> {
                         newView = activity?.findViewById(robotViewID - 21)!!
                         highlightPath(arrayOf(robotViewID + 20, robotViewID + 21, robotViewID + 22))
+                        highlightMainPath(arrayOf(robotViewID -21, robotViewID))
                     }
 
                     // forward left
+                    // main path checked
                     2 -> {
                         newRobotCenter = activity?.findViewById(robotViewID - 39)!!
                         newView = activity?.findViewById(robotViewID - 38)!!
@@ -770,9 +806,11 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 42, robotViewID - 43, robotViewID - 62,
                             robotViewID - 63, robotViewID - 64
                         ))
+                        highlightMainPath(arrayOf(robotViewID -21, robotViewID-42,robotViewID-41, robotViewID-40, robotViewID-39, robotViewID-38, robotViewID))
                     }
 
                     // forward right
+                    // main path checked
                     3 -> {
                         newRobotCenter = activity?.findViewById(robotViewID - 45)!!
                         newView = activity?.findViewById(robotViewID - 46)!!
@@ -784,15 +822,19 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 42, robotViewID - 43, robotViewID - 62,
                             robotViewID - 63, robotViewID - 64
                         ))
+                        highlightMainPath(arrayOf(robotViewID -21, robotViewID-42,robotViewID-43, robotViewID-44, robotViewID-45, robotViewID-46, robotViewID))
                     }
 
                     // down
+                    // main path checked
                     4 -> {
                         newView = activity?.findViewById(robotViewID + 21)!!
                         highlightPath(arrayOf(robotViewID - 20, robotViewID - 21, robotViewID - 22))
+                        highlightMainPath(arrayOf(robotViewID + 21, robotViewID))
                     }
 
                     // down left
+                    // main path checked
                     5 -> {
                         newRobotCenter = activity?.findViewById(robotViewID + 86)!!
                         newView = activity?.findViewById(robotViewID + 85)!!
@@ -805,9 +847,11 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID + 43, robotViewID + 22, robotViewID + 1,
                             robotViewID - 20, robotViewID - 21, robotViewID - 22
                         ))
+                        highlightMainPath(arrayOf(robotViewID, robotViewID+21, robotViewID+42, robotViewID+63, robotViewID+84, robotViewID+85, robotViewID+86))
                     }
 
                     // down right
+                    // main path checked
                     6 -> {
                         newRobotCenter = activity?.findViewById(robotViewID + 82)!!
                         newView = activity?.findViewById(robotViewID + 83)!!
@@ -820,28 +864,36 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 21, robotViewID - 22, robotViewID - 1,
                             robotViewID + 20, robotViewID + 41
                         ))
+                        highlightMainPath(arrayOf( robotViewID-21, robotViewID, robotViewID+21, robotViewID+42, robotViewID+63, robotViewID+84, robotViewID+83, robotViewID+82))
                     }
 
                     //on the spot left
+                    // main path checked
                     7 -> {
                         newView = activity?.findViewById(robotViewID + 1)!!
+                        highlightMainPath(arrayOf(robotViewID))
                     }
 
                     //on the spot right
+                    // main path checked
                     8 -> {
                         newView = activity?.findViewById(robotViewID - 1)!!
+                        highlightMainPath(arrayOf(robotViewID))
                     }
                 }
             }
             getString(R.string.robot_direction_west) -> {
                 // up
+                // main path checked
                 when (directionType) {
                     1 -> {
                         newView = activity?.findViewById(robotViewID - 1)!!
                         highlightPath(arrayOf(robotViewID + 22, robotViewID + 1, robotViewID - 20))
+                        highlightMainPath(arrayOf(robotViewID -1, robotViewID))
                     }
 
                     // forward left
+                    // main path might need recheck for view
                     2 -> {
                         newRobotCenter = activity?.findViewById(robotViewID - 65)!!
                         newView = activity?.findViewById(robotViewID - 86)!!
@@ -853,9 +905,11 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 2, robotViewID - 23, robotViewID + 18,
                             robotViewID - 3, robotViewID - 24
                         ))
+                        highlightMainPath(arrayOf(robotViewID -1, robotViewID-2, robotViewID-23, robotViewID-44, robotViewID-65,robotViewID, robotViewID-86))
                     }
 
                     //  forward right
+                    // main path might need recheck for view
                     3 -> {
                         newRobotCenter = activity?.findViewById(robotViewID + 61)!!
                         newView = activity?.findViewById(robotViewID + 82)!!
@@ -867,15 +921,19 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 2, robotViewID - 23, robotViewID + 18,
                             robotViewID - 3, robotViewID - 24
                         ))
+                        highlightMainPath(arrayOf(robotViewID -1, robotViewID-2, robotViewID+19, robotViewID+40, robotViewID+61, robotViewID, robotViewID+82))
                     }
 
                     // down
+                    // main path checked
                     4 -> {
                         newView = activity?.findViewById(robotViewID + 1)!!
                         highlightPath(arrayOf(robotViewID + 20, robotViewID - 1, robotViewID - 22))
+                        highlightMainPath(arrayOf(robotViewID + 1, robotViewID))
                     }
 
                     // down left
+                    //main path checked
                     5 -> {
                         newRobotCenter = activity?.findViewById(robotViewID - 38)!!
                         newView = activity?.findViewById(robotViewID - 17)!!
@@ -888,9 +946,11 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 20, robotViewID - 21, robotViewID - 22,
                             robotViewID - 1, robotViewID + 20
                         ))
+                        highlightMainPath(arrayOf(robotViewID +1, robotViewID, robotViewID+2, robotViewID+3, robotViewID+4, robotViewID-17, robotViewID-38))
                     }
 
                     // down right
+                    //main path checked
                     6 -> {
                         newRobotCenter = activity?.findViewById(robotViewID + 46)!!
                         newView = activity?.findViewById(robotViewID + 25)!!
@@ -903,16 +963,21 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
                             robotViewID - 1, robotViewID + 20, robotViewID + 21,
                             robotViewID + 22, robotViewID + 23
                         ))
+                        highlightMainPath(arrayOf(robotViewID +1, robotViewID, robotViewID+2, robotViewID+3, robotViewID+4, robotViewID+25, robotViewID+46))
                     }
 
                     //on the spot left
+                    //main path checked
                     7 -> {
                         newView = activity?.findViewById(robotViewID - 21)!!
+                        highlightMainPath(arrayOf(robotViewID))
                     }
 
                     //on the spot right
+                    //main path checked
                     8 -> {
                         newView = activity?.findViewById(robotViewID + 21)!!
+                        highlightMainPath(arrayOf(robotViewID))
                     }
                 }
             }
@@ -1410,10 +1475,34 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
     private fun highlightPath(highLightViewIDs: Array<Int>) {
         // the views that are going to be highlighted on movement and rotation
         for (viewId in highLightViewIDs) {
-            activity?.findViewById<TextView>(viewId)?.setBackgroundColor(ContextCompat.getColor(
-                requireContext(),
-                R.color.pink_700
-            ))
+            if (viewId in usedCells){
+                activity?.findViewById<TextView>(viewId)?.setBackgroundColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.light_pink
+                    )
+                )
+            }
+            else activity?.findViewById<TextView>(viewId)?.setBackgroundColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.pink_700
+                )
+            )
+        }
+    }
+
+    private fun highlightMainPath(highLightViewIDs: Array<Int>) {
+        // the views that are going to be highlighted on movement and rotation
+        for (viewId in highLightViewIDs) {
+            activity?.findViewById<TextView>(viewId)?.setBackgroundColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.light_pink
+                )
+            )
+
+            usedCells += viewId
         }
     }
 
