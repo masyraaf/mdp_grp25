@@ -40,6 +40,8 @@ class Bluetooth : Fragment() {
     private val binding get() = _binding!!
     private var gridMap = GridMap()
     private var numOfObstacles = activity?.findViewById<TextView>(R.id.num_of_obstacles)
+    private var latestMessage = activity?.findViewById<TextView>(R.id.latest_message)
+    private var btStatus = activity?.findViewById<TextView>(R.id.connectStatus)
 
     /**
      * Local Bluetooth adapter
@@ -79,6 +81,9 @@ class Bluetooth : Fragment() {
                         false
                     )
                     Log.d(TAG, "Reconnection Success")
+                    btStatus?.setText("Connected")
+
+
                 }
                 reconnectionHandler.removeCallbacks(this)
                 retryConnection = false
@@ -87,6 +92,7 @@ class Bluetooth : Fragment() {
                     TAG,
                     "Failed to reconnect, reconnecting in 5 second"
                 )
+                btStatus?.setText("Disconnected")
             }
         }
     }
@@ -105,6 +111,12 @@ class Bluetooth : Fragment() {
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        latestMessage = view.findViewById(R.id.latest_message)
+        btStatus = view.findViewById(R.id.connectStatus)
+
+        latestMessage?.setText("initial")
+        btStatus?.setText("bt connect")
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         // If BT is not on, request that it be enabled.
@@ -261,6 +273,8 @@ class Bluetooth : Fragment() {
             addAction(Constants.STATUS_UPDATE)
             addAction(Constants.TARGET_UPDATE)
             addAction(Constants.ROBOT_UPDATE)
+            addAction(Constants.MESSAGE_UPDATE)
+            addAction(Constants.BLUETOOTH_STATE)
         }
         // METHOD to be able to receive information about the each device discovered.
         requireActivity().registerReceiver(receiver, filter)
@@ -311,7 +325,7 @@ class Bluetooth : Fragment() {
                 BluetoothDevice.ACTION_FOUND -> {
                     device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     if (!discoveredDevices.contains(device)){
-                        val name = if (device!!.name == null) "PLACEHOLDER_NAME" else device.name
+                        val name = if (device!!.name == null) device.address else device.name
                         Log.d(TAG, "device added: " + name)
                         newDevicesList.add(Device(device!!, name, device.address))
                         discoveredDevices.add(device!!)
@@ -325,12 +339,14 @@ class Bluetooth : Fragment() {
                     lastConnectedDevice = device!!
                     Log.d(TAG, "Connected to bluetooth device : " + device.name)
                     viewModel.addStatusText("Connected to bluetooth device : " + device.name)
+                    btStatus?.setText("Connected")
                     Toast.makeText(requireContext(), "Connected to bluetooth device : " + device.name, Toast.LENGTH_SHORT).show()
                 }
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                     // TODO reconnect
                     retryConnection = true
                     reconnectionHandler.postDelayed(reconnectionRunnable, 5000)
+                    btStatus?.setText("Disconnected")
                     Toast.makeText(requireContext(), "Disconnected from bluetooth device" , Toast.LENGTH_SHORT).show()
                 }
                 Constants.STATUS_UPDATE -> {
@@ -379,6 +395,22 @@ class Bluetooth : Fragment() {
                     Log.d(TAG, "x : ${robotX}, y: ${robotY}, robotDirection : $robotDirection")
                     gridMap.updateRobotPositionAndFacingDirection(robotX, robotY, robotDirection)
                 }
+                Constants.MESSAGE_UPDATE -> {
+                    Log.d(TAG, "comes here. ")
+                    val incomingMessage = intent.getStringExtra(Constants.MESSAGE_UPDATE)!!
+                    latestMessage?.setText(incomingMessage)
+
+                    Log.d(TAG, "message: " + incomingMessage)
+
+                }
+                Constants.BLUETOOTH_STATE -> {
+                    Log.d(TAG, "change in bt state")
+
+                    val newBTState = intent.getStringExtra(Constants.BLUETOOTH_STATE)
+
+                    btStatus?.setText(newBTState)
+                }
+
 
                 else -> Log.d(TAG, "Default case for receiver")
             }

@@ -51,6 +51,7 @@ interface Constants {
         const val ROBOT_UPDATE = "ROBOT"
         const val INVALID_CODE = -1
         const val BLUETOOTH_STATE = "BluetoothState"
+        const val MESSAGE_UPDATE = "MESSAGE"
 
 
         enum class GridPointType {
