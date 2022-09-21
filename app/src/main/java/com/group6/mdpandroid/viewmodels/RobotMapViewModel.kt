@@ -164,7 +164,7 @@ class RobotMapViewModel : ViewModel() {
     private val mutableStatusTexts = MutableLiveData<String>()
     val statusTexts: LiveData<String> get() = mutableStatusTexts
     fun addStatusText(newStatus: String) {
-        Log.d(TAG, "Adding Status Text : $newStatus")
+        Log.d(TAG, "Status for Added Items : $newStatus")
         mutableStatusTexts.value = newStatus
     }
 

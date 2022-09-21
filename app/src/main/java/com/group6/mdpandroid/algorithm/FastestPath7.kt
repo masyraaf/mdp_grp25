@@ -22,7 +22,7 @@ class FastestPath7(gridDetails: GridDetails, destination: Pair<ArenaCell, ArenaC
     private lateinit var path: Pair<Stack<ArenaCell>, ArenaCell>
 
     fun getFastestPath(): Pair<Stack<ArenaCell>, ArenaCell> {
-        Log.v("SR", "Finding Fastest Path. (7th ver)")
+        Log.v("SR", "Finding Fastest Path")
 
         // Get row and col information for destination
         val targetRow = destination.first.getIndexRow()
@@ -100,7 +100,7 @@ class FastestPath7(gridDetails: GridDetails, destination: Pair<ArenaCell, ArenaC
                 //Log.v("SR", "Before condition check - cost so far: ${costSoFar[nextCellKey]} and newCost: $newCost")
 
                 if (!costSoFar.containsKey(nextCellKey) || newCost < (costSoFar[nextCellKey]!!)){
-                    Log.v("SR", "Adding node to frontier: x:${nextCell.getIndexColumn()}, y: ${nextCell.getIndexRow()}, direction: ${nextCell.getRobotDirection()}")
+                    Log.v("SR", "(cost calculated) Adding node to frontier: x:${nextCell.getIndexColumn()}, y: ${nextCell.getIndexRow()}, direction: ${nextCell.getRobotDirection()}")
 
                     nextCell.setActualCostSoFar(newCost)
                     nextCell.setHeuristicCost(calculateHeuristicCost(nextCell))
@@ -127,7 +127,7 @@ class FastestPath7(gridDetails: GridDetails, destination: Pair<ArenaCell, ArenaC
         val neighbours = ArrayList<ArenaCell>()
         val robotDirection = cell.getRobotDirection()
 
-        Log.v("SR", "Finding neighbours for x: ${cellCol}, y: ${cellRow}, direction: $robotDirection")
+        Log.v("SR", "Searching neighbours for cell x: ${cellCol}, y: ${cellRow}, direction: $robotDirection")
 
         if (robotDirection == Direction.NORTH){
             //turn left
