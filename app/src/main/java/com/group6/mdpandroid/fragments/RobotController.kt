@@ -199,24 +199,37 @@ class RobotController : Fragment() {
 
             // Run algorithm 3
             val algorithm = HamiltonianAlgo3(gridDetails)
-            var (pathToTake, orderedObstacles) = algorithm.runImageRecognitionTask()
-            var reordered: ArrayList<GridPoint> = ArrayList<GridPoint>()
+            try {
+                var (pathToTake, orderedObstacles) = algorithm.runImageRecognitionTask()
+                var reordered: ArrayList<GridPoint> = ArrayList<GridPoint>()
 
-            // Add the obstacles in the order that they are to be visited
-            for (queueItem in orderedObstacles) {
-                for (arrayListItem in viewModel.arrayOfGridPoints) {
-                    if (arrayListItem.xPos == queueItem.getIndexColumn() &&
-                        arrayListItem.yPos == queueItem.getIndexRow()) {
-                        reordered.add(arrayListItem)
+                // Add the obstacles in the order that they are to be visited
+                for (queueItem in orderedObstacles) {
+                    for (arrayListItem in viewModel.arrayOfGridPoints) {
+                        if (arrayListItem.xPos == queueItem.getIndexColumn() &&
+                            arrayListItem.yPos == queueItem.getIndexRow()
+                        ) {
+                            reordered.add(arrayListItem)
+                        }
                     }
                 }
+
+                // Remove original unordered obstacles
+                viewModel.arrayOfGridPoints.removeAll(viewModel.arrayOfGridPoints)
+                viewModel.arrayOfGridPoints.addAll(reordered)
+
+                convertToCommands(pathToTake, orderedObstacles)
             }
+            catch(e: ArrayIndexOutOfBoundsException){
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("No Path Found!")
+                    .setMessage("No path was found for the current map config. The obstacles chosen are not reachable, please try a new map config instead.")
+                    .setPositiveButton("Okay") { _, _ ->
 
-            // Remove original unordered obstacles
-            viewModel.arrayOfGridPoints.removeAll(viewModel.arrayOfGridPoints)
-            viewModel.arrayOfGridPoints.addAll(reordered)
+                    }
+                    .show()
 
-            convertToCommands(pathToTake, orderedObstacles)
+            }
         }
 
         return binding.root
