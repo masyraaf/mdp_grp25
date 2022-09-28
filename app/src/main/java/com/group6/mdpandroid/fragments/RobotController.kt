@@ -533,12 +533,12 @@ class RobotController : Fragment() {
                 val robotPositionY = viewModel.robotPosition.value?.last()
 
                 var element = path.pop()
-                Log.d("ELEMENT", "${element.getIndexColumn()} ${element.getIndexRow()}, ${element.getRobotDirection()}")
+                Log.d("FINALPATH", "${element.getRobotDirection()}, ${element.getIndexColumn()}, ${element.getIndexRow()}")
 
                 // check if it is the starting position of robot
                 if (robotPositionY == element.getIndexRow() && robotPositionX == element.getIndexColumn() && viewModel.robotDirection.value == element.getRobotDirection().toString()) {
 
-                    Log.v("ELEMENT", "time to take pic")
+                    Log.v("ELEMENT", "Taking Picture")
                     // pop the next element
                     turnAndTakePicture(orderedObstacles)
                     obstacleIndex += 1
@@ -546,7 +546,7 @@ class RobotController : Fragment() {
                 }
 
                 else if (robotPositionY == element.getIndexRow() && robotPositionX == element.getIndexColumn() && viewModel.robotDirection.value != element.getRobotDirection().toString()){
-                    Log.v("ELEMENT", "rotating on the spot")
+                    Log.v("ELEMENT", "Rotate on the spot")
                     when (viewModel.robotDirection.value) {
                         getString(R.string.robot_direction_north) -> {
                             if (element.getRobotDirection() == Direction.WEST){

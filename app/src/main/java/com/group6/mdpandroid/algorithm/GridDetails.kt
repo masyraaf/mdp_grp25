@@ -235,7 +235,7 @@ class GridDetails(obstacleList: ArrayList<GridPoint>) {
         for (x in 0..19)
             for (y in 0..19){
                 if(arenaCells[x][y]?.isVirtualObstacle() == true) {
-                    Log.v("VObstacle", "x:${x}, y: ${y}")
+                    Log.v("Area around Obstacle", "x:${x}, y: ${y}")
                     var arenaCell = ArenaCell(x,y, Direction.NA)
                     vobstacleList.add(arenaCell)
                 }
