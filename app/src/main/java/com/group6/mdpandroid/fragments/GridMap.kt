@@ -1531,7 +1531,14 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
             }
         }
         else { // check if textInside is the same and position is different, if it is, remove it
-            for (view in obstaclesLayout?.children!!) {
+
+            val children = obstaclesLayout?.children
+
+            if(children == null){
+                return
+            }
+
+            for (view in children) {
                 if (view.tag != null) {
                     if (((view.tag as GridPoint).textInside == (v.tag as GridPoint).textInside &&
                         (view.tag as GridPoint).xPos != (v.tag as GridPoint).xPos) ||
