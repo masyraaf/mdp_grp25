@@ -492,19 +492,28 @@ class BluetoothService(context: Context?, handler: Handler) {
                             // create intents variables
                             action = Constants.STATUS_UPDATE
                             broadcastMessage(mContext, action, incomingmessage)
-                        }
-                        if (incomingmessage.lowercase().contains("target")){
+                        }else if (incomingmessage.lowercase().contains("target")){
                             // create intents variables
                             action = Constants.TARGET_UPDATE
                             broadcastMessage(mContext, action, incomingmessage)
-                        }
-                        if(incomingmessage.lowercase().contains("robot")){
+                        }else if(incomingmessage.lowercase().contains("robot")){
                             // create intents variables
                             action = Constants.ROBOT_UPDATE
                             broadcastMessage(mContext, action, incomingmessage)
+                        }else{
+                            action = Constants.MESSAGE_UPDATE
+                            broadcastMessage(mContext, action, incomingmessage)
+                            Log.d(TAG,"message received" )
                         }
 
+
+
                     }
+
+                    val mIntent = Intent(Constants.BLUETOOTH_STATE)
+                    mIntent.action = Constants.BLUETOOTH_STATE
+                    mIntent.putExtra(Constants.BLUETOOTH_STATE, "Connected")
+                    mContext.sendBroadcast(mIntent)
 
                 } catch (e: IOException) {
                     Log.e(TAG, "disconnected", e)
