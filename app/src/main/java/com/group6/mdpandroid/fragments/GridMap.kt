@@ -1439,6 +1439,8 @@ class GridMap : Fragment(), View.OnDragListener, View.OnLongClickListener, View.
 
     private fun resetMap() {
 
+        usedCells = listOf(0)
+
         for (row in mapDetailsIDs) {
             for (column in row) {
                 val textView = activity?.findViewById<TextView>(column)
